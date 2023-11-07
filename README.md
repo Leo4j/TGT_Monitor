@@ -32,3 +32,5 @@ TGT_Monitor -EncryptionKey "YourSecurePassword" -Read
 ```
 TGT_Monitor -Clear
 ```
+
+### Dependency: https://github.com/MzHmO/PowershellKerberos
