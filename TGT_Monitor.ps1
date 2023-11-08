@@ -59,7 +59,17 @@ function TGT_Monitor {
 		}
 	}
 	
-	if($Read){return}
+	if($Read){
+ 		if (Test-Path $registryPath) {
+ 			return
+    		} 
+      		else{
+			Write-Output ""
+			Write-Output "[-] Empty Registry"
+			Write-Output ""
+   			return
+		}
+   	}
 	
 	if($Timeout){
  		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew() # Start the stopwatch
