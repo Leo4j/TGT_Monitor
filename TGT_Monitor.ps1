@@ -27,7 +27,8 @@ function TGT_Monitor {
 	$registryPath = 'HKLM:\SOFTWARE\MONITOR'
 	
 	if($Clear){
-		Get-Item $registryPath | Remove-Item -Recurse -Force
+ 		if(Test-Path $registryPath){Get-Item $registryPath | Remove-Item -Recurse -Force}
+  		Remove-Variable -Name finalUniqueSections -Scope Global -ErrorAction SilentlyContinue
 		Write-Output ""
 		Write-Output "[+] Registry Cleared"
 		Write-Output ""
