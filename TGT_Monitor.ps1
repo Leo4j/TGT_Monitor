@@ -60,7 +60,9 @@ function TGT_Monitor {
 	
 	if($Read){return}
 	
-	$stopwatch = [System.Diagnostics.Stopwatch]::StartNew() # Start the stopwatch
+	if($Timeout){
+ 		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew() # Start the stopwatch
+   	}
 
 	while($True){
 		
@@ -187,11 +189,11 @@ function TGT_Monitor {
 			Write-Output ""
 		}
 		
-		if ($stopwatch.Elapsed.TotalSeconds -gt $Timeout) {
-            Write-Output "Timeout reached ($Timeout seconds)"
+		if ($Timeout -AND ($stopwatch.Elapsed.TotalSeconds -gt $Timeout)) {
+            		Write-Output "Timeout reached ($Timeout seconds)"
 			Write-Output ""
-            break # Exit the loop
-        }
+            		break # Exit the loop
+        	}
 	}
 }
 
